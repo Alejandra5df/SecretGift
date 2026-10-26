@@ -1,7 +1,7 @@
 const config = require('./config');
 const app = require('./app');
 const { pool } = require('./db');
-const { configurado } = require('./mailer');
+const { configurado, usaGmailApi } = require('./mailer');
 const { fcmConfigurado } = require('./notificaciones');
 const { programarMantenimiento } = require('./mantenimiento');
 
@@ -21,7 +21,7 @@ const { programarMantenimiento } = require('./mantenimiento');
     console.log(`Links de invitación con base: ${config.appUrl}`);
     console.log(
       configurado()
-        ? 'Correo: SMTP configurado (los códigos se envían por correo).'
+        ? (usaGmailApi() ? 'Correo: Gmail API (HTTPS) configurada.' : 'Correo: SMTP configurado (los códigos se envían por correo).')
         : 'Correo: SMTP SIN configurar -> los códigos se imprimen aquí en la terminal (solo desarrollo).',
     );
     console.log(fcmConfigurado() ? 'FCM: notificaciones push activas.' : 'FCM: sin configurar (no se enviarán notificaciones push).');

@@ -8,6 +8,13 @@ if (!destino) {
   console.error('Uso: npm run probar-correo -- tucorreo@ejemplo.com');
   process.exit(1);
 }
+const { usaGmailApi, enviarCodigo } = require('../src/mailer');
+if (usaGmailApi()) {
+  enviarCodigo(destino, 'Prueba', '123456', 'verificar')
+    .then(() => console.log(`Correo de prueba enviado a ${destino} por la Gmail API. Revisa tu bandeja (y spam).`))
+    .catch((e) => { console.error('No se pudo enviar el correo:', e.message); process.exit(1); });
+  return;
+}
 if (!config.smtp.host || !config.smtp.user || !config.smtp.pass) {
   console.error('Faltan SMTP_HOST, SMTP_USER o SMTP_PASS en tu archivo .env');
   process.exit(1);

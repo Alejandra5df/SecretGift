@@ -50,6 +50,12 @@ module.exports = {
   jwtSecret,
   jwtExpira: process.env.JWT_EXPIRA || '7d',
   corsOrigenes: (process.env.CORS_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
+  // Gmail API (por HTTPS, puerto 443). Sirve donde el SMTP está bloqueado, como Render gratis.
+  gmailApi: {
+    clientId: process.env.GMAIL_CLIENT_ID || '',
+    clientSecret: process.env.GMAIL_CLIENT_SECRET || '',
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN || '',
+  },
   smtp: {
     host: process.env.SMTP_HOST || '',
     port: Number(process.env.SMTP_PORT || 465),

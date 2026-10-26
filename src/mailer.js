@@ -2,7 +2,50 @@ const nodemailer = require('nodemailer');
 const config = require('./config');
 
 let transporte = null;
-const configurado = () => Boolean(config.smtp.host && config.smtp.user && config.smtp.pass);
+const usaGmailApi = () => Boolean(config.gmailApi.clientId && config.gmailApi.clientSecret && config.gmailApi.refreshToken);
+const configurado = () => usaGmailApi() || Boolean(config.smtp.host && config.smtp.user && config.smtp.pass);
+
+// ---------- Gmail API (HTTPS): funciona en Render gratis, donde el SMTP está bloqueado ----------
+let tokenCache = { valor: '', vence: 0 };
+
+async function tokenGmail() {
+  if (tokenCache.valor && Date.now() < tokenCache.vence - 60000) return tokenCache.valor;
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: config.gmailApi.clientId,
+      client_secret: config.gmailApi.clientSecret,
+      refresh_token: config.gmailApi.refreshToken,
+      grant_type: 'refresh_token',
+    }),
+    signal: AbortSignal.timeout(10000),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.access_token) {
+    throw new Error(`Gmail OAuth: ${d.error_description || d.error || r.status}`);
+  }
+  tokenCache = { valor: d.access_token, vence: Date.now() + (d.expires_in || 3600) * 1000 };
+  return tokenCache.valor;
+}
+
+async function enviarPorGmailApi(opciones) {
+  // nodemailer arma el mensaje completo (HTML + imágenes) y la API de Gmail lo envía
+  const { message } = await nodemailer
+    .createTransport({ streamTransport: true, buffer: true, newline: 'unix' })
+    .sendMail(opciones);
+  const token = await tokenGmail();
+  const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw: message.toString('base64url') }),
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!r.ok) {
+    const d = await r.json().catch(() => ({}));
+    throw new Error(`Gmail API: ${(d.error && d.error.message) || r.status}`);
+  }
+}
 
 function obtenerTransporte() {
   if (!transporte) {
@@ -145,15 +188,17 @@ async function enviarCodigo(correo, nombre, codigo, tipo = 'verificar') {
   const aviso = recuperar ? 'Si no lo solicitaste, ignora este mensaje: tu contraseña no cambiará.' : 'Si no creaste una cuenta, ignora este mensaje.';
   const texto = `Hola ${nombre},\n\n${intro} ${codigo}\n\nVence en 10 minutos. ${aviso}`;
 
-  await obtenerTransporte().sendMail({
+  const mensaje = {
     from: config.smtp.from,
     to: correo,
     subject: asunto,
     text: texto,
     html: plantilla({ codigo, recuperar }),
     attachments: IMAGENES,
-  });
+  };
+  if (usaGmailApi()) await enviarPorGmailApi(mensaje);
+  else await obtenerTransporte().sendMail(mensaje);
   return { simulado: false };
 }
 
-module.exports = { enviarCodigo, configurado, plantilla };
+module.exports = { enviarCodigo, configurado, plantilla, usaGmailApi };

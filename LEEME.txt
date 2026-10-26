@@ -27,3 +27,7 @@ Hosting -> Render
 reCAPTCHA v2 (solo login): RECAPTCHA_SECRET en el servidor, clave del sitio en la app.
 Notificaciones push (FCM): FIREBASE_SERVICE_ACCOUNT en el servidor + google-services.json en la app.
 Correo (Google SMTP): SMTP_USER y SMTP_PASS (contrasena de aplicacion de Gmail).
+
+Correo en Render GRATIS (el SMTP esta bloqueado): usa la Gmail API por HTTPS.
+  Variables: GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN (y SMTP_FROM con tu Gmail).
+  Si las tres estan llenas, el correo sale por la API de Gmail; si no, se usa el SMTP normal.
