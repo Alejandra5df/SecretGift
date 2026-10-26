@@ -1,0 +1,29 @@
+SecretGift - servidor (API) con Node.js + Express + MySQL
+
+ npm install
+ npm run db:init          (crea o ACTUALIZA las tablas; seguro de repetir)
+ npm start                (deja la terminal abierta)
+
+Probar que tus correos se envian:   npm run probar-correo -- tucorreo@gmail.com
+Pruebas del sorteo:                 npm test
+
+Si existe la carpeta "public" (la app web compilada), este mismo servidor la sirve:
+asi funcionan los links de invitacion.
+
+================ Servicios en la nube (Entrega 7) ================
+Base de datos -> Aiven for MySQL
+  1) Crea el servicio MySQL en Aiven y copia host, puerto, usuario, contraseña y nombre.
+  2) Ponlos en .env (o en Render): DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME y DB_SSL=true
+  3) npm run db:init   (crea las tablas dentro de tu base de Aiven)
+
+Hosting -> Render
+  1) Sube esta carpeta a un repositorio de GitHub (el .env NO se sube, ya esta en .gitignore).
+  2) En Render: New > Blueprint (usa render.yaml) o New > Web Service.
+     Build: npm install     Start: npm run db:init && npm start
+  3) Llena las variables de entorno (las marcadas "sync: false" de render.yaml).
+  4) APP_URL = la direccion https://xxxx.onrender.com que te da Render.
+  Cada push a GitHub redespliega solo.
+
+reCAPTCHA v2 (solo login): RECAPTCHA_SECRET en el servidor, clave del sitio en la app.
+Notificaciones push (FCM): FIREBASE_SERVICE_ACCOUNT en el servidor + google-services.json en la app.
+Correo (Google SMTP): SMTP_USER y SMTP_PASS (contrasena de aplicacion de Gmail).

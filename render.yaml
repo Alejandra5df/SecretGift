@@ -1,0 +1,38 @@
+# Blueprint de Render: despliegue automático desde GitHub (cada push redespliega).
+services:
+  - type: web
+    name: secretgift-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run db:init && npm start
+    healthCheckPath: /api/salud
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_SSL
+        value: "true"
+      # Los siguientes se escriben a mano en el panel de Render (sync: false = no se guardan en GitHub)
+      - { key: DB_HOST, sync: false }
+      - { key: DB_PORT, sync: false }
+      - { key: DB_USER, sync: false }
+      - { key: DB_PASSWORD, sync: false }
+      - { key: DB_NAME, sync: false }
+      - { key: DB_SSL_CA, sync: false }
+      - { key: SMTP_HOST, value: smtp.gmail.com }
+      - { key: SMTP_PORT, value: "465" }
+      - { key: SMTP_SECURE, value: "true" }
+      - { key: SMTP_USER, sync: false }
+      - { key: SMTP_PASS, sync: false }
+      - { key: SMTP_FROM, sync: false }
+      - { key: APP_URL, sync: false }
+      - { key: CORS_ORIGINS, sync: false }
+      - { key: RECAPTCHA_SECRET, sync: false }
+      - { key: FIREBASE_SERVICE_ACCOUNT, sync: false }
+      - { key: ANDROID_APP_ID, sync: false }
+      - { key: ANDROID_SHA256, sync: false }
