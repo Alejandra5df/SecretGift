@@ -6,7 +6,7 @@ const {
   hashContrasena, compararContrasena, firmarToken, generarCodigo, hashCodigo, iguales,
 } = require('../seguridad');
 const {
-  validarCorreo, validarNombre, validarContrasena, validarCodigo, hoyMexico,
+  validarCorreo, validarNombre, validarContrasena, validarContrasenaRegistro, validarCodigo, hoyMexico,
 } = require('../validacion');
 const { enviarCodigo } = require('../mailer');
 const { verificarCaptcha } = require('../captcha');
@@ -93,7 +93,7 @@ router.post('/registro', limiteAuth, async (req, res, next) => {
   try {
     const nombre = validarNombre(req.body.nombre, 'nombre', 3);
     const correo = validarCorreo(req.body.correo);
-    const contrasena = validarContrasena(req.body.contrasena);
+    const contrasena = validarContrasenaRegistro(req.body.contrasena);
 
     const [existente] = await consultar('SELECT id, verificado, estado FROM usuarios WHERE correo = ?', [correo]);
     if (existente && existente.estado === 'inactivo') {
