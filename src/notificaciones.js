@@ -10,13 +10,14 @@ function obtenerMensajeria() {
   intentado = true;
   if (!config.fcm.json) return null;
   try {
-    const admin = require('firebase-admin');
+    const { initializeApp, cert } = require('firebase-admin/app');
+    const { getMessaging } = require('firebase-admin/messaging');
     // FIREBASE_SERVICE_ACCOUNT puede ser el JSON completo o ese JSON en base64.
     const crudo = config.fcm.json.trim().startsWith('{')
       ? config.fcm.json
       : Buffer.from(config.fcm.json, 'base64').toString('utf8');
-    admin.initializeApp({ credential: admin.credential.cert(JSON.parse(crudo)) });
-    mensajeria = admin.messaging();
+    const app = initializeApp({ credential: cert(JSON.parse(crudo)) });
+    mensajeria = getMessaging(app);
   } catch (e) {
     console.error('FCM: no se pudo iniciar Firebase Admin:', e.message);
   }
