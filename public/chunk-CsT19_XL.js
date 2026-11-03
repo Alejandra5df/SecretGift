@@ -1,0 +1,1 @@
+import{E as R,S as PL,s as F}from"./chunk-SRR2CDPr.js";var m=(()=>{let t=class t{constructor(o){this.toast=o}async mostrar(o){await(await this.toast.create({message:o,duration:2500,position:`bottom`})).present()}};t.ɵfac=function(a){return new(a||t)(R(PL))},t.ɵprov=F({token:t,factory:t.ɵfac,providedIn:`root`});return t})();export{m as t};
